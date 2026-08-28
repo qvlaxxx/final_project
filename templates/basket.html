@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Кошик{% endblock title %}
+
+{% block maincontent %}
+<h2>Basket</h2>
+<div class="row">
+    {% for dish in dishes %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ dish.name }}</h5>
+                <p class="card-text"><strong>{{ dish.price }} грн</strong></p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p>Кошик порожній.</p>
+    {% endfor %}
+</div>
+{% endblock maincontent %}

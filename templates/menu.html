@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Menu{% endblock title %}
+
+{% block maincontent %}
+<div class="container mt-4">
+    <h2>Наше меню</h2>
+    <div class="row">
+        {% for dish in dishes %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                    {% if dish.image %}
+                    <img src="{{ url_for('static', filename=dish.image) }}" class="card-img-top" alt="{{ dish.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ dish.name }}</h5>
+                        <p class="card-text">{{ dish.description }}</p>
+                        <p class="card-text"><strong>{{ dish.price }} грн</strong></p>
+                        <form action="/basket/add" method="POST">
+                            <input type="hidden" name="dish_id" value="{{ dish.id }}">
+                            <button type="submit" class="btn">Додати в кошик</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+        <p>Меню поки що порожнє.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock maincontent %}

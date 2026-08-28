@@ -1,0 +1,218 @@
+/* ==========================================================================
+   Бортик — базовые стили сайта
+   Минималистичная основа: сброс, типографика, layout, карточки, формы.
+   ========================================================================== */
+
+:root {
+    --color-bg: #faf7f2;
+    --color-surface: #ffffff;
+    --color-text: #2b2420;
+    --color-muted: #8a7f74;
+    --color-border: #e6ded3;
+    --color-accent: #b23a1d;
+    --color-accent-dark: #8f2e16;
+
+    --font-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+    --radius: 10px;
+    --gap: 24px;
+    --max-width: 1080px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-base);
+    background: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+    margin: 0 0 0.5em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+h2 { font-size: 1.6rem; }
+
+p { margin: 0 0 1em; }
+
+a {
+    color: var(--color-accent);
+    text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+/* ---------- layout ---------- */
+
+.container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 32px 20px;
+}
+
+/* ---------- header / nav ---------- */
+
+.site-header {
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.site-header .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+.brand:hover { text-decoration: none; }
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 28px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links a {
+    color: var(--color-text);
+    font-size: 0.95rem;
+}
+.nav-links a:hover { color: var(--color-accent); }
+
+/* ---------- footer ---------- */
+
+.site-footer {
+    background: var(--color-text);
+    color: var(--color-bg);
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 60px;
+}
+
+/* ---------- menu grid / cards (matches Bootstrap-style classes in menu.html) ---------- */
+
+.row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--gap);
+    margin: 0;
+}
+
+.col-md-4 {
+    max-width: 340px;
+}
+
+.mb-4 { margin-bottom: var(--gap); }
+.mt-4 { margin-top: var(--gap); }
+
+.card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.card.h-100 { height: 100%; }
+
+.card-img-top {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+}
+
+.card-body {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.card-text {
+    color: var(--color-muted);
+    font-size: 0.92rem;
+    margin-bottom: 10px;
+}
+
+.card-text strong {
+    color: var(--color-accent);
+    font-size: 1rem;
+}
+
+/* ---------- forms (login / register) ---------- */
+
+form {
+    max-width: 360px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 28px;
+}
+
+form label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    margin-bottom: 4px;
+}
+
+form input {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+form input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+}
+
+button, .btn {
+    display: inline-block;
+    background: var(--color-accent);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+button:hover, .btn:hover {
+    background: var(--color-accent-dark);
+}
+
+form p {
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: var(--color-muted);
+}
