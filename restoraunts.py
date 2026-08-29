@@ -3,8 +3,14 @@ from email.mime import image
 from flask import Flask, render_template, g, request, redirect, url_for, session
 from sqlalchemy import create_engine, String, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship, sessionmaker, DeclarativeBase
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.login_message = 'Будь ласка, увійдіть, щоб отримати доступ до цієї сторінки.'
 
 app = Flask(__name__)
+login_manager.init_app(app)
 app.secret_key = "dev-secret-key-123"
 PG_USER = "postgres"
 PG_PASSWORD = "123"
@@ -13,6 +19,13 @@ PG_DBNAME = "restoraunt"
 engine = create_engine(f"postgresql+psycopg2://{PG_USER}:{PG_PASSWORD}@localhost:5432/{PG_DBNAME}", echo=False)
 Session = sessionmaker(bind=engine)
 
+@login_manager.user_loader
+def load_user(user_id):
+    db = Session()
+    user = db.get(User, int(user_id))
+    db.close()
+    return user
+
 class Base(DeclarativeBase):
     def create_db(self):
         Base.metadata.create_all(engine)
@@ -20,7 +33,7 @@ class Base(DeclarativeBase):
     def drop_db(self):
         Base.metadata.drop_all(engine)
 
-class User(Base):
+class User(Base,UserMixin):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -47,9 +60,8 @@ def home():
     return render_template("home.html")
 
 @app.route("/menu")
+@login_required
 def menu():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
 
     db = Session()
     dishes = db.query(Menu).all()
@@ -59,9 +71,8 @@ def menu():
 
 
 @app.route("/basket")
+@login_required
 def basket():
-    if "user_id" not in session:
-        return redirect(url_for('login'))
 
     basket_ids = session.get("basket", [])
 
@@ -102,10 +113,15 @@ def login():
         return "User is not registered "
     if password != user.password:
         return "Wrong password "
-    
-    session['user_id'] = user.id
-    session['username'] = user.username
+
+    login_user(user)
     return redirect(url_for("menu"))
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()  # Очищає сесію користувача
+    return redirect(url_for('login'))
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -125,15 +141,13 @@ def register():
     new_user = User(username=username, password=password)
     db.add(new_user)
     db.commit()
-    
-    session['user_id'] = new_user.id
-    session['username'] = new_user.username
+
+    login_user(new_user)
     db.close()
     
     return redirect(url_for("menu"))
 
 if __name__ == '__main__':
-    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
     db = Session()
