@@ -98,9 +98,12 @@ def delete_to_basket():
     dish_id = request.form.get("dish_id")
     if dish_id in session.get("basket", []):
         session["basket"].remove(dish_id)
+        session.modified = True
     else:
         return redirect(url_for("error_basket_noy_products"))
     return redirect(url_for("basket"))
+
+
 
 
 @app.route("/contact")
