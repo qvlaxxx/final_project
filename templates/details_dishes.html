@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Детальне Меню{% endblock title %}
+
+{% block maincontent %}
+<div class="container mt-4">
+    <h2>Детальне меню</h2>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                    {% if dishes.image %}
+                    <img src="{{ url_for('static', filename=dishes.image) }}" class="card-img-top" alt="{{ dishes.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ dishes.name }}</h5>
+                        <p class="card-text">{{ dishes.description }}</p>
+                        <p class="card-text"><strong>{{ dishes.price }} грн</strong></p>
+
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+{% endblock maincontent %}

@@ -16,10 +16,11 @@
                         <h5 class="card-title">{{ dish.name }}</h5>
                         <p class="card-text">{{ dish.description }}</p>
                         <p class="card-text"><strong>{{ dish.price }} грн</strong></p>
-                        <form action="/basket/add" method="POST">
-                            <input type="hidden" name="dish_id" value="{{ dish.id }}">
-                            <button type="submit" class="btn">Додати в кошик</button>
-                        </form>
+                            <form action="/basket/add" method="POST">
+                                <input type="hidden" name="dish_id" value="{{ dish.id }}">
+                                <button type="submit" class="btn">Додати в кошик</button>
+                            </form>
+                            <a href="{{ url_for('details_dishes', dish_id=dish.id) }}" class="btn">Детальніше</a>
                     </div>
                 </div>
             </div>

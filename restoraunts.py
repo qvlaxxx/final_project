@@ -103,6 +103,13 @@ def delete_to_basket():
         return redirect(url_for("error_basket_noy_products"))
     return redirect(url_for("basket"))
 
+@app.route("/details_dishes/<dish_id>")
+def details_dishes(dish_id):
+    db = Session()
+    dish = db.get(Menu, int(dish_id))
+    db.close()
+    return render_template("details_dishes.html", dishes=dish)
+
 
 
 
