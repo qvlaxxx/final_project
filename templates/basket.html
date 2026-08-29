@@ -11,6 +11,9 @@
             <div class="card-body">
                 <h5 class="card-title">{{ dish.name }}</h5>
                 <p class="card-text"><strong>{{ dish.price }} грн</strong></p>
+                    <form action="/basket/del" method="POST">
+                        <input type="hidden" name="dish_id" value="{{ dish.id }}">
+                    <button type="submit" class="btn">Видалити з кошика</button>
             </div>
         </div>
     </div>
