@@ -1,24 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %}Детальне Меню{% endblock title %}
+{% block title %}{{ dishes.name }}{% endblock title %}
 
 {% block maincontent %}
 <div class="container mt-4">
-    <h2>Детальне меню</h2>
-    <div class="row">
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                    {% if dishes.image %}
-                    <img src="{{ url_for('static', filename=dishes.image) }}" class="card-img-top" alt="{{ dishes.name }}">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ dishes.name }}</h5>
-                        <p class="card-text">{{ dishes.description }}</p>
-                        <p class="card-text"><strong>{{ dishes.price }} грн</strong></p>
-
-                    </div>
-                </div>
+    {% if dishes.image %}
+    <div class="dish-detail">
+        <img src="{{ url_for('static', filename=dishes.image) }}" class="dish-detail-image" alt="{{ dishes.name }}">
+        <div class="dish-detail-body">
+            <h2 class="dish-detail-title">{{ dishes.name }}</h2>
+            <p class="dish-detail-text">{{ dishes.description }}</p>
+            <p class="dish-detail-price">{{ dishes.price }} грн</p>
+            <div class="card-actions">
+                <form action="/basket/add" method="POST">
+                    <input type="hidden" name="dish_id" value="{{ dishes.id }}">
+                    <button type="submit" class="btn">Додати в кошик</button>
+                </form>
             </div>
+        </div>
     </div>
+    {% endif %}
 </div>
 {% endblock maincontent %}
