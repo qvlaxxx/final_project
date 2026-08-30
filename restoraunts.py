@@ -4,7 +4,7 @@ from flask import Flask, render_template, g, request, redirect, url_for, session
 from sqlalchemy import create_engine, String, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship, sessionmaker, DeclarativeBase
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
-
+import secrets
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.login_message = 'Будь ласка, увійдіть, щоб отримати доступ до цієї сторінки.'
@@ -48,6 +48,7 @@ class Menu(Base):
     description: Mapped[str] = mapped_column(String(300), nullable=True)
     price: Mapped[float] = mapped_column(Float)
     image: Mapped[str] = mapped_column(String(200), nullable=True)
+    active: Mapped[bool] = mapped_column(Boolean)
 
 class Basket(Base):
     __tablename__ = "basket"
@@ -62,9 +63,8 @@ def home():
 @app.route("/menu")
 @login_required
 def menu():
-
     db = Session()
-    dishes = db.query(Menu).all()
+    dishes = db.query(Menu).filter(Menu.active == True).all()
     db.close()
 
     return render_template("menu.html", dishes=dishes)
@@ -111,11 +111,32 @@ def details_dishes(dish_id):
     return render_template("details_dishes.html", dishes=dish)
 
 
-
-
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
+
+@app.route('/menu_check', methods=['GET', 'POST'])
+@login_required
+def menu_check():
+    if current_user.username != 'Admin':
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        if request.form.get("csrf_token") != session['csrf_token']:
+            return "Запит заблоковано!", 403
+
+        position_id = request.form['pos_id']
+        with Session() as cursor:
+            position_obj = cursor.query(Menu).filter_by(id=position_id).first()
+            if 'change_status' in request.form:
+                position_obj.active = not position_obj.active
+            elif 'delete_position' in request.form:
+                cursor.delete(position_obj)
+            cursor.commit()
+
+    with Session() as cursor:
+        all_positions = cursor.query(Menu).all()
+    return render_template('check_menu.html', all_positions=all_positions, csrf_token=session["csrf_token"])
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -135,12 +156,13 @@ def login():
         return "Wrong password "
 
     login_user(user)
+    session['csrf_token'] = secrets.token_hex(16)
     return redirect(url_for("menu"))
 
 @app.route('/logout')
 @login_required
 def logout():
-    logout_user()  # Очищає сесію користувача
+    logout_user()
     return redirect(url_for('login'))
 
 @app.route("/register", methods=["GET", "POST"])
@@ -176,22 +198,22 @@ if __name__ == '__main__':
             Menu(name="Сирний вибух", description="класична піца з томатами й моцарелою,"
                                                   " а бортик фарширований потрійним сиром "
                                                   "(моцарела, чеддер, пармезан),"
-                                                  " який тягнеться при розрізанні.", price=220.0, image="image1.jpg"),
+                                                  " який тягнеться при розрізанні.", price=220.0, image="image1.jpg", active=True),
             Menu(name="Мед і перець", description="піца з пеппероні та руколою,"
                                                   " бортик покритий тонким шаром "
                                                   "меду з чорним перцем — солодко-гострий контраст.", price=240.0,
-                 image="image2.jpg"),
+                 image="image2.jpg", active=True ),
             Menu(name="Часниковий бургер-бортик", description="бортик фарширований часниковим маслом"
                                                               " і посипаний пармезаном та зеленню,"
                                                               " під нього — піца з беконом і карамелізованою цибулею.",
-                 price=250.0, image="image3.jpg"),
+                 price=250.0, image="image3.jpg", active=True),
             Menu(name="Шоколадна Межа", description="на десертній піці з бананом і горіхами бортик"
                                                     " обмазаний розтопленим темним шоколадом"
                                                     " і посипаний кокосовою стружкою.", price=200.0,
-                  image="image4.jpg"),
+                  image="image4.jpg", active=True),
             Menu(name="Огняний краєчок", description="гострий бортик з халапеньйо та сирним соусом чіпотле,"
                                                      " під ним — піца з куркою-барбекю та червоною цибулею.",
-                 price=260.0, image="image5.jpg"),
+                 price=260.0, image="image5.jpg", active=True),
         ])
         db.commit()
     db.close()
