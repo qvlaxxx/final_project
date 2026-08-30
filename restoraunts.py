@@ -56,6 +56,13 @@ class Basket(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100))
 
+class Orders(Base):
+    __tablename__ = "orders"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(100))
+    sum:  Mapped[float] = mapped_column(Float)
+
 @app.route("/")
 def home():  
     return render_template("home.html")
@@ -82,6 +89,22 @@ def basket():
 
     return render_template("basket.html", dishes=dishes)
 
+
+
+@app.route("/orders")
+def orders():
+    orders_ids = session.get("orders", [])
+    db = Session()
+    dishes = db.query(Menu).filter(Menu.id.in_(orders_ids)).all()
+    db.close()
+    return render_template("orders.html", dishes=dishes)
+
+@app.route("/order/create", methods=["POST"])
+def create_order():
+    basket_ids = session.get("basket", [])
+    session["orders"] = basket_ids
+    session["basket"] = []
+    return redirect(url_for("orders"))
 
 @app.route("/basket/add", methods=["POST"])
 def add_to_basket():
