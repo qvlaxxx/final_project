@@ -165,6 +165,10 @@ a:hover { text-decoration: underline; }
 /* ---------- forms (login / register) ---------- */
 
 form {
+    margin: 0;
+}
+
+.form-card {
     max-width: 360px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -172,14 +176,14 @@ form {
     padding: 28px;
 }
 
-form label {
+.form-card label {
     display: block;
     font-size: 0.85rem;
     color: var(--color-muted);
     margin-bottom: 4px;
 }
 
-form input {
+.form-card input {
     width: 100%;
     padding: 10px 12px;
     margin-bottom: 16px;
@@ -191,7 +195,7 @@ form input {
     color: var(--color-text);
 }
 
-form input:focus {
+.form-card input:focus {
     outline: none;
     border-color: var(--color-accent);
 }
@@ -211,7 +215,7 @@ button:hover, .btn:hover {
     background: var(--color-accent-dark);
 }
 
-form p {
+.form-card p {
     margin-top: 16px;
     font-size: 0.9rem;
     color: var(--color-muted);

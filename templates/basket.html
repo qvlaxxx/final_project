@@ -3,7 +3,7 @@
 {% block title %}Кошик{% endblock title %}
 
 {% block maincontent %}
-<h2>Basket</h2>
+<h2>Кошик</h2>
 <div class="row">
     {% for dish in dishes %}
     <div class="col-md-4 mb-4">
@@ -11,13 +11,15 @@
             <div class="card-body">
                 <h5 class="card-title">{{ dish.name }}</h5>
                 <p class="card-text"><strong>{{ dish.price }} грн</strong></p>
+                <div class="card-actions">
                     <form action="/basket/del" method="POST">
                         <input type="hidden" name="dish_id" value="{{ dish.id }}">
-                    <button type="submit" class="btn">Видалити з кошика</button>
-                   </form>
-                    <form action="/order/create" method="POST">
-                    <button type="submit" class="btn">Замовити</button>
+                        <button type="submit" class="btn">Видалити з кошика</button>
                     </form>
+                    <form action="/order/create" method="POST">
+                        <button type="submit" class="btn">Замовити</button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

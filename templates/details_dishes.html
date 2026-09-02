@@ -9,7 +9,7 @@
         <img src="{{ url_for('static', filename=dishes.image) }}" class="dish-detail-image" alt="{{ dishes.name }}">
         <div class="dish-detail-body">
             <h2 class="dish-detail-title">{{ dishes.name }}</h2>
-            <p class="dish-detail-text">{{ dishes.description }}</p>
+            <p class="dish-detail-text">{{ dishes.details_description }}</p>
             <p class="dish-detail-price">{{ dishes.price }} грн</p>
             <div class="card-actions">
                 <form action="/basket/add" method="POST">
