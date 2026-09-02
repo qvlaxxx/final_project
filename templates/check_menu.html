@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-    <meta charset="UTF-8">
-    <title>Адміністрування меню</title>
-</head>
-<body>
-<h2>Перевірка меню</h2>
-<table>
-    <tr><th>ID</th><th>Назва</th><th>Опис</th><th>Ціна</th><th>Активний</th><th>Дія</th></tr>
+{% extends "base.html" %}
+
+{% block title %}Адмін панель{% endblock title %}
+
+{% block maincontent %}
     {% for pos in all_positions %}
     <tr>
         <td>{{ pos.id }}</td>
@@ -25,6 +20,4 @@
         </td>
     </tr>
     {% endfor %}
-</table>
-</body>
-</html>
+{% endblock maincontent %}

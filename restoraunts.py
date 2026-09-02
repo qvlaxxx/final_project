@@ -102,7 +102,6 @@ def orders():
     db = Session()
     dishes = db.query(Menu).filter(Menu.id.in_(orders_ids)).all()
     db.close()
-    return render_template("orders.html", dishes=dishes)
 
 @app.route("/order/create", methods=["POST"])
 def create_order():
