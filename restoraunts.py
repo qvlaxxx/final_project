@@ -5,6 +5,7 @@ from sqlalchemy import create_engine, String, Float, Integer, ForeignKey, Boolea
 from sqlalchemy.orm import Mapped, mapped_column, relationship, sessionmaker, DeclarativeBase
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 import secrets
+
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.login_message = 'Будь ласка, увійдіть, щоб отримати доступ до цієї сторінки.'
@@ -19,12 +20,14 @@ PG_DBNAME = "restoraunt"
 engine = create_engine(f"postgresql+psycopg2://{PG_USER}:{PG_PASSWORD}@localhost:5432/{PG_DBNAME}", echo=False)
 Session = sessionmaker(bind=engine)
 
+
 @login_manager.user_loader
 def load_user(user_id):
     db = Session()
     user = db.get(User, int(user_id))
     db.close()
     return user
+
 
 class Base(DeclarativeBase):
     def create_db(self):
@@ -33,12 +36,14 @@ class Base(DeclarativeBase):
     def drop_db(self):
         Base.metadata.drop_all(engine)
 
-class User(Base,UserMixin):
+
+class User(Base, UserMixin):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String(100), nullable=False)
+
 
 class Menu(Base):
     __tablename__ = "dishes"
@@ -51,22 +56,26 @@ class Menu(Base):
     active: Mapped[bool] = mapped_column(Boolean)
     details_description: Mapped[str] = mapped_column(String(500), nullable=True)
 
+
 class Basket(Base):
     __tablename__ = "basket"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100))
 
+
 class Orders(Base):
     __tablename__ = "orders"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(100))
-    sum:  Mapped[float] = mapped_column(Float)
+    sum: Mapped[float] = mapped_column(Float)
+
 
 @app.route("/")
-def home():  
+def home():
     return render_template("home.html")
+
 
 @app.route("/menu")
 @login_required
@@ -77,6 +86,7 @@ def menu():
 
     return render_template("menu.html", dishes=dishes)
 
+
 @app.route("/error_basket_noy_products")
 def error_basket_noy_products():
     return render_template("error_basket_noy_products.html")
@@ -85,7 +95,6 @@ def error_basket_noy_products():
 @app.route("/basket")
 @login_required
 def basket():
-
     basket_ids = session.get("basket", [])
 
     db = Session()
@@ -95,24 +104,35 @@ def basket():
     return render_template("basket.html", dishes=dishes)
 
 
-
 @app.route("/orders")
 def orders():
-    orders_ids = session.get("orders", [])
-    db = Session()
-    dishes = db.query(Menu).filter(Menu.id.in_(orders_ids)).all()
-    db.close()
+    with Session() as db:
+        all_orders = db.query(Orders).all()
+    return render_template("orders.html", orders=all_orders)
+
 
 @app.route("/order/create", methods=["POST"])
 def create_order():
     basket_ids = session.get("basket", [])
-    session["orders"] = basket_ids
+    if not basket_ids:
+        return redirect(url_for("error_basket_noy_products"))
+
+    with Session() as db:
+        dishes = db.query(Menu).filter(Menu.id.in_(basket_ids)).all()
+        total_sum = sum(dish.price for dish in dishes)
+        order_names = ", ".join(dish.name for dish in dishes)
+
+        new_order = Orders(name=order_names, sum=total_sum)
+        db.add(new_order)
+        db.commit()
+
     session["basket"] = []
     return redirect(url_for("orders"))
 
+
 @app.route("/basket/add", methods=["POST"])
 def add_to_basket():
-    dish_id = request.form.get("dish_id")
+    dish_id = int(request.form.get("dish_id"))
 
     basket = session.get("basket", [])
     basket.append(dish_id)
@@ -120,15 +140,17 @@ def add_to_basket():
 
     return redirect(url_for("basket"))
 
+
 @app.route("/basket/del", methods=["POST"])
 def delete_to_basket():
-    dish_id = request.form.get("dish_id")
+    dish_id = int(request.form.get("dish_id"))
     if dish_id in session.get("basket", []):
         session["basket"].remove(dish_id)
         session.modified = True
     else:
         return redirect(url_for("error_basket_noy_products"))
     return redirect(url_for("basket"))
+
 
 @app.route("/details_dishes/<dish_id>")
 def details_dishes(dish_id):
@@ -141,6 +163,7 @@ def details_dishes(dish_id):
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
+
 
 @app.route('/menu_check', methods=['GET', 'POST'])
 @login_required
@@ -165,18 +188,19 @@ def menu_check():
         all_positions = cursor.query(Menu).all()
     return render_template('check_menu.html', all_positions=all_positions, csrf_token=session["csrf_token"])
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
         return render_template("login.html")
-        
+
     username = request.form.get("username")
     password = request.form.get("password")
-    
+
     db = Session()
     user = db.query(User).filter(User.username == username).first()
     db.close()
-    
+
     if not user:
         return "User is not registered "
     if password != user.password:
@@ -186,35 +210,38 @@ def login():
     session['csrf_token'] = secrets.token_hex(16)
     return redirect(url_for("menu"))
 
+
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('login'))
 
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "GET":
         return render_template("register.html")
-        
+
     username = request.form.get("username")
     password = request.form.get("password")
-    
-    db = Session() 
+
+    db = Session()
     user_exists = db.query(User).filter(User.username == username).first()
-    
+
     if user_exists:
         db.close()
         return "такий нікнейм вже існує"
-    
+
     new_user = User(username=username, password=password)
     db.add(new_user)
     db.commit()
 
     login_user(new_user)
     db.close()
-    
+
     return redirect(url_for("menu"))
+
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
@@ -267,4 +294,3 @@ if __name__ == '__main__':
     db.close()
 
     app.run(debug=True)
-    
