@@ -1,22 +1,33 @@
 /* ==========================================================================
-   Бортик — базовые стили сайта
-   Минималистичная основа: сброс, типографика, layout, карточки, формы.
+   Бортик — стилі сайту
+   Тепла піцерійна палітра: печена скоринка, помідор, розтоплений сир.
    ========================================================================== */
 
 :root {
-    --color-bg: #faf7f2;
-    --color-surface: #ffffff;
-    --color-text: #2b2420;
-    --color-muted: #8a7f74;
-    --color-border: #e6ded3;
-    --color-accent: #b23a1d;
-    --color-accent-dark: #8f2e16;
+    --color-bg: #FFF6E9;
+    --color-surface: #FFFFFF;
+    --color-text: #3B2314;
+    --color-muted: #9A7A5C;
+    --color-border: #F1DFC0;
 
+    --color-accent: #E8681E;
+    --color-accent-dark: #C24E10;
+    --color-accent-light: #FFA23A;
+    --color-yellow: #FFC736;
+
+    --gradient-accent: linear-gradient(135deg, #FFB238 0%, #E8681E 60%, #C24E10 100%);
+    --gradient-header: linear-gradient(90deg, #FF9A2E 0%, #E8681E 50%, #D6540F 100%);
+
+    --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
     --font-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 
-    --radius: 10px;
-    --gap: 24px;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --gap: 26px;
     --max-width: 1080px;
+
+    --shadow-card: 0 4px 14px rgba(59, 35, 20, 0.08), 0 1px 3px rgba(59, 35, 20, 0.06);
+    --shadow-card-hover: 0 14px 30px rgba(196, 78, 16, 0.18), 0 4px 8px rgba(59, 35, 20, 0.08);
 }
 
 * {
@@ -28,26 +39,44 @@ body {
     font-family: var(--font-base);
     background: var(--color-bg);
     color: var(--color-text);
-    line-height: 1.5;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4 {
     margin: 0 0 0.5em;
+    font-family: var(--font-display);
     font-weight: 700;
     letter-spacing: -0.01em;
     line-height: 1.2;
+    color: var(--color-text);
 }
 
-h2 { font-size: 1.6rem; }
+h2 {
+    font-size: 1.75rem;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+h2::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 56px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--gradient-accent);
+}
 
 p { margin: 0 0 1em; }
 
 a {
-    color: var(--color-accent);
+    color: var(--color-accent-dark);
     text-decoration: none;
+    transition: color 0.15s ease;
 }
-a:hover { text-decoration: underline; }
+a:hover { color: var(--color-accent); text-decoration: underline; }
 
 /* ---------- layout ---------- */
 
@@ -61,7 +90,9 @@ a:hover { text-decoration: underline; }
 
 .site-header {
     background: var(--color-surface);
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 3px solid transparent;
+    border-image: var(--gradient-header) 1;
+    box-shadow: 0 2px 12px rgba(59, 35, 20, 0.06);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -76,37 +107,68 @@ a:hover { text-decoration: underline; }
 }
 
 .brand {
-    font-size: 1.25rem;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
     font-weight: 700;
-    color: var(--color-text);
+    color: var(--color-accent-dark);
+    letter-spacing: -0.01em;
 }
-.brand:hover { text-decoration: none; }
+.brand:hover { text-decoration: none; color: var(--color-accent); }
 
 .nav-links {
     list-style: none;
     display: flex;
-    gap: 28px;
+    flex-wrap: wrap;
+    gap: 8px;
     margin: 0;
     padding: 0;
 }
 
 .nav-links a {
+    display: inline-block;
     color: var(--color-text);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 999px;
+    transition: background 0.15s ease, color 0.15s ease;
 }
-.nav-links a:hover { color: var(--color-accent); }
+.nav-links a:hover {
+    color: var(--color-accent-dark);
+    background: rgba(232, 104, 30, 0.1);
+    text-decoration: none;
+}
 
 /* ---------- footer ---------- */
 
 .site-footer {
     background: var(--color-text);
-    color: var(--color-bg);
+    background-image: linear-gradient(180deg, #3B2314 0%, #2A180D 100%);
+    color: #FFE9C9;
     text-align: center;
-    padding: 40px 20px;
-    margin-top: 60px;
+    padding: 8px 20px;
+    margin-top: 30px;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    opacity: 0.85;
+    line-height: 1.4;
 }
 
-/* ---------- menu grid / cards (matches Bootstrap-style classes in menu.html) ---------- */
+/* ---------- картинка на головній сторінці ---------- */
+
+.home-image {
+    display: block;
+    width: 100%;
+    max-height: 460px;
+    object-fit: cover;
+    object-position: top;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-card);
+    margin-top: 24px;
+}
+
+/* ---------- menu grid / cards ---------- */
 
 .row {
     display: grid;
@@ -129,8 +191,16 @@ a:hover { text-decoration: underline; }
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 .card.h-100 { height: 100%; }
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: var(--color-accent-light);
+}
 
 .card-img-top {
     width: 100%;
@@ -147,7 +217,8 @@ a:hover { text-decoration: underline; }
 }
 
 .card-title {
-    font-size: 1.1rem;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
     margin-bottom: 8px;
 }
 
@@ -158,8 +229,9 @@ a:hover { text-decoration: underline; }
 }
 
 .card-text strong {
-    color: var(--color-accent);
-    font-size: 1rem;
+    color: var(--color-accent-dark);
+    font-size: 1.05rem;
+    font-weight: 700;
 }
 
 /* ---------- forms (login / register) ---------- */
@@ -173,46 +245,58 @@ form {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
-    padding: 28px;
+    padding: 30px;
+    box-shadow: var(--shadow-card);
 }
 
 .form-card label {
     display: block;
     font-size: 0.85rem;
+    font-weight: 600;
     color: var(--color-muted);
     margin-bottom: 4px;
 }
 
 .form-card input {
     width: 100%;
-    padding: 10px 12px;
+    padding: 11px 13px;
     margin-bottom: 16px;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-sm);
     font-size: 1rem;
     font-family: inherit;
     background: var(--color-bg);
     color: var(--color-text);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .form-card input:focus {
     outline: none;
     border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(232, 104, 30, 0.15);
 }
 
 button, .btn {
     display: inline-block;
-    background: var(--color-accent);
+    background: var(--gradient-accent);
     color: #fff;
     border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: 600;
+    padding: 11px 22px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
     cursor: pointer;
+    box-shadow: 0 3px 10px rgba(196, 78, 16, 0.28);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 button:hover, .btn:hover {
-    background: var(--color-accent-dark);
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(196, 78, 16, 0.34);
+}
+button:active, .btn:active {
+    transform: translateY(0);
 }
 
 .form-card p {
@@ -220,11 +304,13 @@ button:hover, .btn:hover {
     font-size: 0.9rem;
     color: var(--color-muted);
 }
-/* ---------- группа кнопок в карточке (Додати в кошик + Детальніше) ---------- */
+
+/* ---------- група кнопок в картці ---------- */
 
 .card-actions {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
     margin-top: auto;
 }
@@ -235,16 +321,19 @@ button:hover, .btn:hover {
 
 .btn-outline {
     background: transparent;
-    color: var(--color-accent);
+    color: var(--color-accent-dark);
     border: 1.5px solid var(--color-accent);
+    box-shadow: none;
 }
 
 .btn-outline:hover {
-    background: var(--color-accent);
+    background: var(--gradient-accent);
     color: #fff;
+    border-color: transparent;
+    box-shadow: 0 6px 16px rgba(196, 78, 16, 0.28);
 }
 
-/* ---------- детальна сторінка страви (details_dishes.html) ---------- */
+/* ---------- детальна сторінка страви ---------- */
 
 .dish-detail {
     display: flex;
@@ -254,6 +343,7 @@ button:hover, .btn:hover {
     border-radius: var(--radius);
     overflow: hidden;
     max-width: 900px;
+    box-shadow: var(--shadow-card);
 }
 
 .dish-detail-image {
@@ -273,6 +363,7 @@ button:hover, .btn:hover {
 }
 
 .dish-detail-title {
+    font-family: var(--font-display);
     font-size: 2rem;
     margin-bottom: 16px;
 }
@@ -284,10 +375,15 @@ button:hover, .btn:hover {
 }
 
 .dish-detail-price {
-    color: var(--color-accent);
-    font-size: 1.6rem;
+    display: inline-block;
+    color: var(--color-accent-dark);
+    background: rgba(255, 199, 54, 0.22);
+    font-size: 1.4rem;
     font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 999px;
     margin-bottom: 24px;
+    width: fit-content;
 }
 
 /* на вузьких екранах — картинка зверху, текст знизу */
