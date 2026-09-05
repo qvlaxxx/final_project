@@ -5,12 +5,23 @@ from sqlalchemy import create_engine, String, Float, Integer, ForeignKey, Boolea
 from sqlalchemy.orm import Mapped, mapped_column, relationship, sessionmaker, DeclarativeBase
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 import secrets
+from flask_caching import Cache
+
+
+
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.login_message = 'Будь ласка, увійдіть, щоб отримати доступ до цієї сторінки.'
 
 app = Flask(__name__)
+app.config['CACHE_TYPE'] = 'SimpleCache'
+app.config['CACHE_KEY_PREFIX'] = 'myapp_'
+app.config['CACHE_DEFAULT_TIMEOUT'] = 30
+app.config['CACHE_KEY_PREFIX'] = 'myapp_'
+
+cache = Cache()
+cache.init_app(app)
 login_manager.init_app(app)
 app.secret_key = "dev-secret-key-123"
 PG_USER = "postgres"
@@ -27,6 +38,21 @@ def load_user(user_id):
     user = db.get(User, int(user_id))
     db.close()
     return user
+
+@app.after_request
+def apply_csp(response):
+    nonce = secrets.token_urlsafe(16)
+    csp = (
+        f"default-src 'self'; "
+        f"script-src 'self' 'nonce-{nonce}'; "
+        f"style-src 'self'; "
+        f"frame-ancestors 'none'; "
+        f"base-uri 'self'; "
+        f"form-action 'self'"
+    )
+    response.headers["Content-Security-Policy"] = csp
+    response.set_cookie('nonce', nonce)
+    return response
 
 
 class Base(DeclarativeBase):
@@ -79,6 +105,7 @@ def home():
 
 @app.route("/menu")
 @login_required
+@cache.cached(timeout=120)
 def menu():
     db = Session()
     dishes = db.query(Menu).filter(Menu.active == True).all()
@@ -88,6 +115,7 @@ def menu():
 
 
 @app.route("/error_basket_noy_products")
+@cache.cached(timeout=120)
 def error_basket_noy_products():
     return render_template("error_basket_noy_products.html")
 
@@ -105,6 +133,7 @@ def basket():
 
 
 @app.route("/orders")
+@cache.cached(timeout=60)
 def orders():
     with Session() as db:
         all_orders = db.query(Orders).all()
@@ -153,6 +182,7 @@ def delete_to_basket():
 
 
 @app.route("/details_dishes/<dish_id>")
+@cache.cached(timeout=120)
 def details_dishes(dish_id):
     db = Session()
     dish = db.get(Menu, int(dish_id))
@@ -161,6 +191,7 @@ def details_dishes(dish_id):
 
 
 @app.route("/contact")
+@cache.cached(timeout=120)
 def contact():
     return render_template("contact.html")
 
