@@ -14,9 +14,11 @@
                 <div class="card-actions">
                     <form action="/basket/del" method="POST">
                         <input type="hidden" name="dish_id" value="{{ dish.id }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                         <button type="submit" class="btn">Видалити з кошика</button>
                     </form>
                     <form action="/order/create" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                         <button type="submit" class="btn">Замовити</button>
                     </form>
                 </div>

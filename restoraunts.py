@@ -4,6 +4,7 @@ from flask import Flask, render_template, g, request, redirect, url_for, session
 from sqlalchemy import create_engine, String, Float, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship, sessionmaker, DeclarativeBase
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+import logging
 import secrets
 from flask_caching import Cache
 
@@ -27,6 +28,12 @@ app.secret_key = "dev-secret-key-123"
 PG_USER = "postgres"
 PG_PASSWORD = "123"
 PG_DBNAME = "restoraunt"
+
+logging.basicConfig(
+    filename='app.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 engine = create_engine(f"postgresql+psycopg2://{PG_USER}:{PG_PASSWORD}@localhost:5432/{PG_DBNAME}", echo=False)
 Session = sessionmaker(bind=engine)
@@ -100,6 +107,7 @@ class Orders(Base):
 
 @app.route("/")
 def home():
+    app.logger.info("started function home")
     return render_template("home.html")
 
 
@@ -107,15 +115,17 @@ def home():
 @login_required
 @cache.cached(timeout=120)
 def menu():
+    app.logger.info("started function menu")
     db = Session()
     dishes = db.query(Menu).filter(Menu.active == True).all()
     db.close()
 
-    return render_template("menu.html", dishes=dishes)
+    return render_template("menu.html", dishes=dishes, csrf_token=session['csrf_token'])
 
 @app.route("/profile", methods=["GET", "POST"])
 @login_required
 def profile():
+    app.logger.info("started function profile")
     if request.method == "GET":
         return render_template("profile.html")
     username = request.form.get("username")
@@ -134,30 +144,39 @@ def profile():
 
     db.commit()
     db.close()
-    return redirect(url_for("profile"))
+    return redirect(url_for("profile_view"))
+
+@app.route("/profile_new")
+@login_required
+def profile_view():
+    app.logger.info("started function profile_new")
+    return render_template("profile_view.html")
 
 
 @app.route("/error_basket_noy_products")
 @cache.cached(timeout=120)
 def error_basket_noy_products():
+    app.logger.info("started function error_basket_noy_products")
     return render_template("error_basket_noy_products.html")
 
 
 @app.route("/basket")
 @login_required
 def basket():
+    app.logger.info("started function basket")
     basket_ids = session.get("basket", [])
 
     db = Session()
     dishes = db.query(Menu).filter(Menu.id.in_(basket_ids)).all()
     db.close()
 
-    return render_template("basket.html", dishes=dishes)
+    return render_template("basket.html", dishes=dishes, csrf_token=session['csrf_token'])
 
 
 @app.route("/orders")
 @cache.cached(timeout=60)
 def orders():
+    app.logger.info("started function orders")
     with Session() as db:
         all_orders = db.query(Orders).all()
     return render_template("orders.html", orders=all_orders)
@@ -165,9 +184,12 @@ def orders():
 
 @app.route("/order/create", methods=["POST"])
 def create_order():
+    app.logger.info("started function order/create")
     basket_ids = session.get("basket", [])
     if not basket_ids:
         return redirect(url_for("error_basket_noy_products"))
+    if request.form.get("csrf_token") != session.get('csrf_token'):
+        return "Запит заблоковано!", 403
 
     with Session() as db:
         dishes = db.query(Menu).filter(Menu.id.in_(basket_ids)).all()
@@ -184,8 +206,10 @@ def create_order():
 
 @app.route("/basket/add", methods=["POST"])
 def add_to_basket():
+    app.logger.info("started function basket/add")
+    if request.form.get("csrf_token") != session.get('csrf_token'):
+        return "Запит заблоковано!", 403
     dish_id = int(request.form.get("dish_id"))
-
     basket = session.get("basket", [])
     basket.append(dish_id)
     session["basket"] = basket
@@ -195,6 +219,9 @@ def add_to_basket():
 
 @app.route("/basket/del", methods=["POST"])
 def delete_to_basket():
+    app.logger.info("started function basket/del")
+    if request.form.get("csrf_token") != session.get('csrf_token'):
+        return "Запит заблоковано!", 403
     dish_id = int(request.form.get("dish_id"))
     if dish_id in session.get("basket", []):
         session["basket"].remove(dish_id)
@@ -207,21 +234,24 @@ def delete_to_basket():
 @app.route("/details_dishes/<dish_id>")
 @cache.cached(timeout=120)
 def details_dishes(dish_id):
+    app.logger.info("started function basket/<dish_id>")
     db = Session()
     dish = db.get(Menu, int(dish_id))
     db.close()
-    return render_template("details_dishes.html", dishes=dish)
+    return render_template("details_dishes.html", dishes=dish, csrf_token=session.get('csrf_token'))
 
 
 @app.route("/contact")
 @cache.cached(timeout=120)
 def contact():
+    app.logger.info("started function contact")
     return render_template("contact.html")
 
 
 @app.route('/menu_check', methods=['GET', 'POST'])
 @login_required
 def menu_check():
+    app.logger.info("started function menu_check")
     if current_user.username != 'Admin':
         return redirect(url_for('home'))
 
@@ -245,6 +275,7 @@ def menu_check():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    app.logger.info("started function login")
     if request.method == "GET":
         return render_template("login.html")
 
@@ -268,12 +299,14 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
+    app.logger.info("started function logout")
     logout_user()
     return redirect(url_for('login'))
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    app.logger.info("started function register")
     if request.method == "GET":
         return render_template("register.html")
 

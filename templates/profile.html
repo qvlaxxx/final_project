@@ -1,18 +1,17 @@
+<!-- profile.html -->
 {% extends "base.html" %}
 
-{% block title %}
-Профіль
-{% endblock title %}
+{% block title %}Профіль{% endblock title %}
 
 {% block maincontent %}
-
+<h2>Профіль</h2>
 <form action="/profile" method="POST" class="form-card">
-    <label for="username">Username</label><br>
-   <input value="{{ current_user.username }}" type="text" name="username" id="username"><br>
+    <label for="username">Username</label>
+    <input value="{{ current_user.username }}" type="text" name="username" id="username">
 
-    <label for="password">Password</label><br>
-    <input type="password" name="password" id="password"><br>
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password">
 
-    <button type="submit">Save</button>
+    <button type="submit" class="btn">Save</button>
 </form>
 {% endblock maincontent %}
