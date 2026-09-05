@@ -113,6 +113,29 @@ def menu():
 
     return render_template("menu.html", dishes=dishes)
 
+@app.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    if request.method == "GET":
+        return render_template("profile.html")
+    username = request.form.get("username")
+    password = request.form.get("password")
+    if not username or not password:
+        return redirect(url_for("login"))
+    db = Session()
+    user_exists = db.query(User).filter(User.username == username,User.id != current_user.id).first()
+    if user_exists:
+        return redirect(url_for("profile"))
+
+    user = db.get(User, current_user.id)
+
+    user.username = username
+    user.password = password
+
+    db.commit()
+    db.close()
+    return redirect(url_for("profile"))
+
 
 @app.route("/error_basket_noy_products")
 @cache.cached(timeout=120)

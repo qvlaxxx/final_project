@@ -17,6 +17,7 @@
                 <li><a href="/login">Вхід</a></li>
                 <li><a href="/register">Реєстрація</a></li>
                 <li><a href="/logout">Вийти</a></li>
+                <li><a href="/profile">Профіль</a></li>
                 {% if current_user.is_authenticated and current_user.username == 'Admin' %}
                 <li><a href="{{ url_for('menu_check') }}">Керування меню</a></li>
                 {% endif %}
